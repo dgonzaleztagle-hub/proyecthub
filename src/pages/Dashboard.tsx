@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { ProjectCard } from '../components/project-card';
 import { CreateProjectButton } from '../components/create-project-button';
 import type { Project } from '../types';
@@ -13,9 +14,13 @@ export default function Dashboard() {
 
     async function loadProjects() {
         try {
-            const response = await fetch('http://localhost:3001/api/projects');
-            const data = await response.json();
-            setProjects(data);
+            const { data, error } = await supabase
+                .from('projects')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            setProjects(data || []);
         } catch (error) {
             console.error('Error loading projects:', error);
         } finally {
@@ -57,7 +62,7 @@ export default function Dashboard() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {lovableProjects.map((project) => (
-                            <ProjectCard key={project.path} project={project} />
+                            <ProjectCard key={project.id} project={project} />
                         ))}
                         {lovableProjects.length === 0 && (
                             <div className="col-span-full p-8 rounded-2xl border border-dashed border-slate-700 text-slate-500 text-center">
@@ -76,7 +81,7 @@ export default function Dashboard() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {cloudlabProjects.map((project) => (
-                            <ProjectCard key={project.path} project={project} />
+                            <ProjectCard key={project.id} project={project} />
                         ))}
                         {cloudlabProjects.length === 0 && (
                             <div className="col-span-full p-8 rounded-2xl border border-dashed border-slate-700 text-slate-500 text-center">

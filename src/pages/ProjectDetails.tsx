@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, GitBranch, Folder, Globe, Smartphone, Server } from 'lucide-react';
 import { ProjectTabs } from '../components/project-tabs';
@@ -23,21 +24,45 @@ export default function ProjectDetails() {
 
     async function loadProject() {
         try {
-            const [projectsRes, dataRes] = await Promise.all([
-                fetch('http://localhost:3001/api/projects'),
-                fetch(`http://localhost:3001/api/projects/${name}/data`)
-            ]);
+            const { data: foundProject, error } = await supabase
+                .from('projects')
+                .select('*')
+                .eq('name', name)
+                .single();
 
-            const projects = await projectsRes.json();
-            const foundProject = projects.find((p: Project) => p.name === name);
-            setProject(foundProject || null);
+            if (error) throw error;
 
-            const projectData = await dataRes.json();
-            setData(projectData);
+            setProject(foundProject);
+            // Initialize with default data if empty
+            setData(foundProject.data || {
+                clients: [],
+                payments: [],
+                notes: '',
+                tasks: [],
+                credentials: { custom: [] }
+            });
         } catch (error) {
             console.error('Error loading project:', error);
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function handleDataUpdate(newData: ProjectData) {
+        if (!project) return;
+
+        setData(newData); // Optimistic update
+
+        try {
+            const { error } = await supabase
+                .from('projects')
+                .update({ data: newData })
+                .eq('id', project.id);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error updating project data:', error);
+            // Revert on error could be implemented here
         }
     }
 
@@ -78,7 +103,7 @@ export default function ProjectDetails() {
                                 {project.company}
                             </span>
                             <span className="text-sm">
-                                Modificado: {new Date(project.lastModified).toLocaleDateString()}
+                                Modificado: {new Date(project.lastModified || project.created_at).toLocaleDateString()}
                             </span>
                             {project.hasGit && (
                                 <div className="flex flex-col">
@@ -98,7 +123,7 @@ export default function ProjectDetails() {
                 </div>
             </header>
 
-            <ProjectTabs project={project} initialData={data} onDataUpdate={loadProject} />
-        </main>
+            <ProjectTabs initialData={data} onDataUpdate={handleDataUpdate} />
+        </main >
     );
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X, Loader2 } from 'lucide-react';
 
@@ -22,15 +23,11 @@ export function CreateProjectButton({ onProjectCreated }: CreateProjectButtonPro
         const type = formData.get('type') as string;
 
         try {
-            const response = await fetch('http://localhost:3001/api/projects', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, company, type }),
-            });
+            const { error } = await supabase
+                .from('projects')
+                .insert([{ name, company, type }]);
 
-            const result = await response.json();
-
-            if (result.success) {
+            if (!error) {
                 setIsOpen(false);
                 onProjectCreated();
             } else {

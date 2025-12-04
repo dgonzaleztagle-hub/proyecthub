@@ -1,12 +1,16 @@
 export interface Project {
+    id: string;
     name: string;
-    path: string;
     company: 'Lovable' | 'CloudLab';
     type: 'web' | 'mobile' | 'backend' | 'other';
-    hasGit: boolean;
+    created_at: string;
+    // Optional fields for backward compatibility or future use
+    path?: string;
+    hasGit?: boolean;
     repoUrl?: string;
-    lastModified: string;
+    lastModified?: string;
     stats?: ProjectStats;
+    data?: ProjectData;
 }
 
 export interface ProjectStats {

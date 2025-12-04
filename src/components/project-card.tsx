@@ -43,13 +43,13 @@ export function ProjectCard({ project }: ProjectCardProps) {
                     {project.name}
                 </h3>
                 <p className="text-sm text-slate-400 mb-4">
-                    {project.company} • {new Date(project.lastModified).toLocaleDateString()}
+                    {project.company} • {new Date(project.lastModified || project.created_at).toLocaleDateString()}
                 </p>
 
                 <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <MoreHorizontal className="text-slate-400 hover:text-white" />
                 </div>
             </motion.div>
-        </Link>
+        </Link >
     );
 }

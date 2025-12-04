@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Project, ProjectData } from '../types';
+import { ProjectData } from '../types';
 import { AccountingTab } from './tabs/accounting-tab';
 import { BrainstormTab } from './tabs/brainstorm-tab';
 import { CredentialsTab } from './tabs/credentials-tab';
@@ -7,12 +7,11 @@ import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ProjectTabsProps {
-    project: Project;
     initialData: ProjectData | null;
-    onDataUpdate: () => void;
+    onDataUpdate: (newData: ProjectData) => Promise<void>;
 }
 
-export function ProjectTabs({ project, initialData, onDataUpdate }: ProjectTabsProps) {
+export function ProjectTabs({ initialData, onDataUpdate }: ProjectTabsProps) {
     const [activeTab, setActiveTab] = useState<'accounting' | 'brainstorm' | 'credentials'>('accounting');
     const [data, setData] = useState<ProjectData>(initialData || {
         clients: [],
@@ -24,16 +23,7 @@ export function ProjectTabs({ project, initialData, onDataUpdate }: ProjectTabsP
 
     async function handleDataUpdate(newData: ProjectData) {
         setData(newData);
-        try {
-            await fetch(`http://localhost:3001/api/projects/${project.name}/data`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newData),
-            });
-            onDataUpdate();
-        } catch (error) {
-            console.error('Error updating data:', error);
-        }
+        await onDataUpdate(newData);
     }
 
     const tabs = [
