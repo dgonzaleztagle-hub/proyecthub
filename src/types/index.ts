@@ -35,6 +35,10 @@ export interface Payment {
     description: string;
     status: 'paid' | 'pending';
     type: 'implementation' | 'maintenance';
+    installment?: {
+        current: number;
+        total: number;
+    };
 }
 
 export interface ProjectData {

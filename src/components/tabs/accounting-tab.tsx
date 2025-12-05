@@ -12,6 +12,7 @@ interface AccountingTabProps {
 export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
     const [showAddClient, setShowAddClient] = useState(false);
     const [showAddPayment, setShowAddPayment] = useState(false);
+    const [paymentType, setPaymentType] = useState<'implementation' | 'maintenance' | ''>('');
 
 
     const totalRevenue = (data.payments || []).reduce((acc, curr) => acc + curr.amount, 0);
@@ -36,19 +37,33 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
     async function handleAddPayment(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
+
+        const paymentType = formData.get('type') as 'implementation' | 'maintenance';
+        const installmentCurrent = formData.get('installmentCurrent');
+        const installmentTotal = formData.get('installmentTotal');
+
         const newPayment: Payment = {
             id: crypto.randomUUID(),
             clientId: formData.get('clientId') as string,
             amount: Number(formData.get('amount')),
             description: formData.get('description') as string,
-            date: formData.get('date') as string || new Date().toISOString(),
+            date: new Date().toISOString(),
             status: 'paid',
-            type: formData.get('type') as 'implementation' | 'maintenance',
+            type: paymentType,
         };
+
+        // Add installment info if it's an implementation payment with installments
+        if (paymentType === 'implementation' && installmentCurrent && installmentTotal) {
+            newPayment.installment = {
+                current: Number(installmentCurrent),
+                total: Number(installmentTotal)
+            };
+        }
 
         const newData = { ...data, payments: [...(data.payments || []), newPayment] };
         onUpdate(newData);
         setShowAddPayment(false);
+        setPaymentType('');
     }
 
     return (
@@ -153,12 +168,34 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
                             </select>
                             <input name="amount" type="number" placeholder="Monto" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white" />
                             <input name="description" placeholder="Descripción" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white" />
-                            <input name="date" type="date" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white" />
-                            <select name="type" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                            <select
+                                name="type"
+                                required
+                                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                                onChange={(e) => setPaymentType(e.target.value as 'implementation' | 'maintenance')}
+                            >
                                 <option value="">Tipo de Pago</option>
                                 <option value="implementation">Implementación (Pago Único)</option>
                                 <option value="maintenance">Mantenimiento (Mensual)</option>
                             </select>
+                            {paymentType === 'implementation' && (
+                                <div className="grid grid-cols-2 gap-3">
+                                    <input
+                                        name="installmentCurrent"
+                                        type="number"
+                                        min="1"
+                                        placeholder="Cuota N°"
+                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+                                    />
+                                    <input
+                                        name="installmentTotal"
+                                        type="number"
+                                        min="1"
+                                        placeholder="de Total"
+                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+                                    />
+                                </div>
+                            )}
                             <button type="submit" className="w-full bg-emerald-600 text-white py-2 rounded-lg text-sm">Registrar Pago</button>
                         </motion.form>
                     )}
