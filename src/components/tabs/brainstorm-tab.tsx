@@ -31,13 +31,13 @@ export function BrainstormTab({ data, onUpdate }: BrainstormTabProps) {
             completed: false,
         };
 
-        const newData = { ...data, tasks: [...data.tasks, newTask] };
+        const newData = { ...data, tasks: [...(data.tasks || []), newTask] };
         onUpdate(newData);
         (e.target as HTMLFormElement).reset();
     }
 
     async function toggleTask(taskId: string) {
-        const newTasks = data.tasks.map(t =>
+        const newTasks = (data.tasks || []).map(t =>
             t.id === taskId ? { ...t, completed: !t.completed } : t
         );
         const newData = { ...data, tasks: newTasks };
@@ -83,7 +83,7 @@ export function BrainstormTab({ data, onUpdate }: BrainstormTabProps) {
                 </form>
 
                 <div className="space-y-2">
-                    {data.tasks.map(task => (
+                    {(data.tasks || []).map(task => (
                         <div
                             key={task.id}
                             onClick={() => toggleTask(task.id)}
@@ -97,7 +97,7 @@ export function BrainstormTab({ data, onUpdate }: BrainstormTabProps) {
                             </span>
                         </div>
                     ))}
-                    {data.tasks.length === 0 && <p className="text-slate-500 text-center py-4">No hay tareas pendientes</p>}
+                    {(data.tasks || []).length === 0 && <p className="text-slate-500 text-center py-4">No hay tareas pendientes</p>}
                 </div>
             </div>
         </div>

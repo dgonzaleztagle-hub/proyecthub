@@ -13,8 +13,9 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
     const [showAddClient, setShowAddClient] = useState(false);
     const [showAddPayment, setShowAddPayment] = useState(false);
 
-    const totalRevenue = data.payments.reduce((acc, curr) => acc + curr.amount, 0);
-    const activeClients = data.clients.filter(c => c.status === 'active').length;
+
+    const totalRevenue = (data.payments || []).reduce((acc, curr) => acc + curr.amount, 0);
+    const activeClients = (data.clients || []).filter(c => c.status === 'active').length;
 
     async function handleAddClient(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -27,7 +28,7 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
             startDate: new Date().toISOString(),
         };
 
-        const newData = { ...data, clients: [...data.clients, newClient] };
+        const newData = { ...data, clients: [...(data.clients || []), newClient] };
         onUpdate(newData);
         setShowAddClient(false);
     }
@@ -44,7 +45,7 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
             status: 'paid',
         };
 
-        const newData = { ...data, payments: [...data.payments, newPayment] };
+        const newData = { ...data, payments: [...(data.payments || []), newPayment] };
         onUpdate(newData);
         setShowAddPayment(false);
     }
@@ -111,7 +112,7 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
                     )}
 
                     <div className="space-y-3">
-                        {data.clients.map(client => (
+                        {(data.clients || []).map(client => (
                             <div key={client.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
                                 <div>
                                     <p className="font-medium text-white">{client.name}</p>
@@ -122,7 +123,7 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
                                 </span>
                             </div>
                         ))}
-                        {data.clients.length === 0 && <p className="text-slate-500 text-center py-4">No hay clientes registrados</p>}
+                        {(data.clients || []).length === 0 && <p className="text-slate-500 text-center py-4">No hay clientes registrados</p>}
                     </div>
                 </div>
 
@@ -157,8 +158,8 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
                     )}
 
                     <div className="space-y-3">
-                        {data.payments.map(payment => {
-                            const client = data.clients.find(c => c.id === payment.clientId);
+                        {(data.payments || []).map(payment => {
+                            const client = (data.clients || []).find(c => c.id === payment.clientId);
                             return (
                                 <div key={payment.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
                                     <div>
@@ -171,7 +172,7 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
                                 </div>
                             );
                         })}
-                        {data.payments.length === 0 && <p className="text-slate-500 text-center py-4">No hay pagos registrados</p>}
+                        {(data.payments || []).length === 0 && <p className="text-slate-500 text-center py-4">No hay pagos registrados</p>}
                     </div>
                 </div>
             </div>
