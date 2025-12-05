@@ -43,6 +43,7 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
             description: formData.get('description') as string,
             date: formData.get('date') as string || new Date().toISOString(),
             status: 'paid',
+            type: formData.get('type') as 'implementation' | 'maintenance',
         };
 
         const newData = { ...data, payments: [...(data.payments || []), newPayment] };
@@ -153,6 +154,11 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
                             <input name="amount" type="number" placeholder="Monto" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white" />
                             <input name="description" placeholder="Descripción" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white" />
                             <input name="date" type="date" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white" />
+                            <select name="type" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                                <option value="">Tipo de Pago</option>
+                                <option value="implementation">Implementación (Pago Único)</option>
+                                <option value="maintenance">Mantenimiento (Mensual)</option>
+                            </select>
                             <button type="submit" className="w-full bg-emerald-600 text-white py-2 rounded-lg text-sm">Registrar Pago</button>
                         </motion.form>
                     )}

@@ -34,6 +34,7 @@ export interface Payment {
     date: string;
     description: string;
     status: 'paid' | 'pending';
+    type: 'implementation' | 'maintenance';
 }
 
 export interface ProjectData {

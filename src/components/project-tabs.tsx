@@ -3,6 +3,7 @@ import { ProjectData } from '../types';
 import { AccountingTab } from './tabs/accounting-tab';
 import { BrainstormTab } from './tabs/brainstorm-tab';
 import { CredentialsTab } from './tabs/credentials-tab';
+import { MetricsTab } from './tabs/metrics-tab';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,7 +13,7 @@ interface ProjectTabsProps {
 }
 
 export function ProjectTabs({ initialData, onDataUpdate }: ProjectTabsProps) {
-    const [activeTab, setActiveTab] = useState<'accounting' | 'brainstorm' | 'credentials'>('accounting');
+    const [activeTab, setActiveTab] = useState<'metrics' | 'accounting' | 'brainstorm' | 'credentials'>('metrics');
     const [data, setData] = useState<ProjectData>(initialData || {
         clients: [],
         payments: [],
@@ -27,6 +28,7 @@ export function ProjectTabs({ initialData, onDataUpdate }: ProjectTabsProps) {
     }
 
     const tabs = [
+        { id: 'metrics', label: 'Métricas' },
         { id: 'accounting', label: 'Contabilidad' },
         { id: 'brainstorm', label: 'Brainstorm & To-Do' },
         { id: 'credentials', label: 'Credenciales' },
@@ -63,6 +65,9 @@ export function ProjectTabs({ initialData, onDataUpdate }: ProjectTabsProps) {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
                 >
+                    {activeTab === 'metrics' && (
+                        <MetricsTab data={data} />
+                    )}
                     {activeTab === 'accounting' && (
                         <AccountingTab data={data} onUpdate={handleDataUpdate} />
                     )}
