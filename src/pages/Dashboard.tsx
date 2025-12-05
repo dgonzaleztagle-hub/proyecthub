@@ -32,6 +32,20 @@ export default function Dashboard() {
         }
     }
 
+    async function handleDeleteProject(projectId: string) {
+        try {
+            const { error } = await supabase
+                .from('projects')
+                .delete()
+                .eq('id', projectId);
+
+            if (error) throw error;
+            await loadProjects();
+        } catch (error) {
+            console.error('Error deleting project:', error);
+        }
+    }
+
     const lovableProjects = projects.filter(p => p.company === 'Lovable');
     const cloudlabProjects = projects.filter(p => p.company === 'CloudLab');
 
@@ -104,7 +118,7 @@ export default function Dashboard() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {lovableProjects.map((project) => (
-                                <ProjectCard key={project.id} project={project} />
+                                <ProjectCard key={project.id} project={project} onDelete={handleDeleteProject} />
                             ))}
                             {lovableProjects.length === 0 && (
                                 <div className="col-span-full p-8 rounded-2xl border border-dashed border-slate-700 text-slate-500 text-center">
@@ -123,7 +137,7 @@ export default function Dashboard() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {cloudlabProjects.map((project) => (
-                                <ProjectCard key={project.id} project={project} />
+                                <ProjectCard key={project.id} project={project} onDelete={handleDeleteProject} />
                             ))}
                             {cloudlabProjects.length === 0 && (
                                 <div className="col-span-full p-8 rounded-2xl border border-dashed border-slate-700 text-slate-500 text-center">

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ProjectData, Client, Payment } from '../../types';
-import { Plus, DollarSign, Users, TrendingUp } from 'lucide-react';
+import { Plus, DollarSign, Users, TrendingUp, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
@@ -66,6 +66,16 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
         setPaymentType('');
     }
 
+    function handleDeleteClient(clientId: string) {
+        const newData = { ...data, clients: (data.clients || []).filter(c => c.id !== clientId) };
+        onUpdate(newData);
+    }
+
+    function handleDeletePayment(paymentId: string) {
+        const newData = { ...data, payments: (data.payments || []).filter(p => p.id !== paymentId) };
+        onUpdate(newData);
+    }
+
     return (
         <div className="space-y-8">
             {/* Metrics Cards */}
@@ -129,14 +139,23 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
 
                     <div className="space-y-3">
                         {(data.clients || []).map(client => (
-                            <div key={client.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                            <div key={client.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5 group">
                                 <div>
                                     <p className="font-medium text-white">{client.name}</p>
                                     <p className="text-xs text-slate-400">{client.email}</p>
                                 </div>
-                                <span className={cn("px-2 py-1 rounded-full text-xs", client.status === 'active' ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400")}>
-                                    {client.status}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className={cn("px-2 py-1 rounded-full text-xs", client.status === 'active' ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400")}>
+                                        {client.status}
+                                    </span>
+                                    <button
+                                        onClick={() => handleDeleteClient(client.id)}
+                                        className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/20 rounded-lg transition-all text-red-400 hover:text-red-300"
+                                        title="Eliminar cliente"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                         {(data.clients || []).length === 0 && <p className="text-slate-500 text-center py-4">No hay clientes registrados</p>}
@@ -175,7 +194,7 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
                                 onChange={(e) => setPaymentType(e.target.value as 'implementation' | 'maintenance')}
                             >
                                 <option value="">Tipo de Pago</option>
-                                <option value="implementation">Implementación (Pago Único)</option>
+                                <option value="implementation">Implementación</option>
                                 <option value="maintenance">Mantenimiento (Mensual)</option>
                             </select>
                             {paymentType === 'implementation' && (
@@ -204,13 +223,22 @@ export function AccountingTab({ data, onUpdate }: AccountingTabProps) {
                         {(data.payments || []).map(payment => {
                             const client = (data.clients || []).find(c => c.id === payment.clientId);
                             return (
-                                <div key={payment.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                                <div key={payment.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5 group">
                                     <div>
                                         <p className="font-medium text-white">${payment.amount.toLocaleString()}</p>
                                         <p className="text-xs text-slate-400">{payment.description} • {client?.name}</p>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-xs text-slate-500">{new Date(payment.date).toLocaleDateString()}</p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="text-right">
+                                            <p className="text-xs text-slate-500">{new Date(payment.date).toLocaleDateString()}</p>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDeletePayment(payment.id)}
+                                            className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/20 rounded-lg transition-all text-red-400 hover:text-red-300"
+                                            title="Eliminar pago"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
                                     </div>
                                 </div>
                             );

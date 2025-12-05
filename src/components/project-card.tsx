@@ -1,11 +1,12 @@
 import { Project } from '../types';
-import { Folder, GitBranch, Globe, Smartphone, Server, MoreHorizontal } from 'lucide-react';
+import { Folder, GitBranch, Globe, Smartphone, Server, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
 interface ProjectCardProps {
     project: Project;
+    onDelete?: (projectId: string) => void;
 }
 
 const iconMap = {
@@ -15,7 +16,7 @@ const iconMap = {
     other: Folder,
 };
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, onDelete }: ProjectCardProps) {
     const Icon = iconMap[project.type] || Folder;
 
     return (
@@ -47,7 +48,21 @@ export function ProjectCard({ project }: ProjectCardProps) {
                 </p>
 
                 <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <MoreHorizontal className="text-slate-400 hover:text-white" />
+                    {onDelete && (
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (confirm(`¿Eliminar proyecto "${project.name}"?`)) {
+                                    onDelete(project.id);
+                                }
+                            }}
+                            className="p-2 hover:bg-red-500/20 rounded-lg transition-all text-red-400 hover:text-red-300"
+                            title="Eliminar proyecto"
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                    )}
                 </div>
             </motion.div>
         </Link >
